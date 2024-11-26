@@ -1,0 +1,31 @@
+name: CI Pipeline - Step 1
+
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_branch:
+        description: 'Select a git branch'
+        required: true
+        type: choice
+        options: 
+          - dev
+          - test
+          - prod
+          - default
+
+jobs:
+  capture-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      
+      - name: Write Branch Selection to File
+        run: echo "${{ github.event.inputs.git_branch }}" > selected-branch.txt
+      
+      - name: Upload Selected Branch as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: selected-branch
+          path: /
