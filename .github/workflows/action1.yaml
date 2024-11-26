@@ -27,5 +27,5 @@ jobs:
       - name: Upload Selected Branch as Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: selected-branch
+          name: selectedbranch
           path: ./
