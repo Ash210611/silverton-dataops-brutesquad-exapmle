@@ -22,7 +22,7 @@ runs:
     #     poetry -C ${{ github.action_path }}/scripts/toml_utilities install
     #     poetry -C ${{ github.action_path }}/scripts/toml_utilities run obtain_build_config terraform_yaml_config $GITHUB_WORKSPACE --ops_type all > solution_repo_config.yaml
     #     cat solution_repo_config.yaml
-      shell: bash
+      # shell: bash
     
 
     # - name: Install liquibase  
@@ -70,5 +70,5 @@ runs:
       #       message: "<enter commit message>"
       #       branch: "<git branch name>"
       #       LB_VERSION: "4.30.0"  
-      # shell: bash  
+      shell: bash  
       
