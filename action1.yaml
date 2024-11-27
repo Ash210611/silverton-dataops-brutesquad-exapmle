@@ -1,0 +1,74 @@
+name: "OPS_TDV_action"
+description: "Deploys SQL code from a solution repo to TDV"
+inputs:
+  TDV_USER:  # id
+    description: 'user'
+    required: true
+  TDV_PASSWORD:  # password
+    description: 'password'
+    required: true
+    
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+    - name: Install dependencies and run a python script from rep02
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest poetry
+        poetry -C ${{ github.action_path }}/scripts/toml_utilities install
+        poetry -C ${{ github.action_path }}/scripts/toml_utilities run obtain_build_config terraform_yaml_config $GITHUB_WORKSPACE --ops_type all > solution_repo_config.yaml
+        cat solution_repo_config.yaml
+      shell: bash
+    
+
+    - name: Install liquibase  
+      run: |
+          curl -L https://github.com/liquibase/liquibase/releases/download/v${LB_VERSION}/liquibase-${LB_VERSION}.zip --output liquibase-${LB_VERSION}.zip
+          unzip -o -d liquibase liquibase-${LB_VERSION}.zip
+          pushd ./liquibase/lib/
+          tar xf ../../.github/workflows/TeraJDBC__indep_indep.20.00.00.34.tar          
+          curl -L https://github.com/liquibase/liquibase-teradata/releases/download/v4.29.2/liquibase-teradata-4.29.2.jar --output ./liquibase-teradata-4.29.2.jar
+      #     ls -l
+      #     popd
+      #     pwd
+      #     echo username is ${{ inputs.TDV_USER }}
+      #     echo password is ${{ inputs.TDV_PASSWORD }}
+      #     ls -lR ./*
+      #     ./liquibase/liquibase --version
+      #     #nslookup hstntduat.healthspring.inside
+      #     #nslookup hstntdprod.healthspring.inside
+      #     #./liquibase/liquibase --defaultsFile=./H2_project/liquibase.properties --logLevel="${{ github.event.inputs.logLevel }}" status --verbose
+      #     #./liquibase/liquibase --defaultsFile=./liquibase/examples/sql/liquibase.properties --logLevel="${{ github.event.inputs.logLevel }}" status --verbose
+      #     # ./liquibase/liquibase --defaultsFile=./liquibase_airflow.properties --logLevel=DEBUG status --verbose --username=${{ inputs.TDV_USER }} --password=${{ inputs.TDV_PASSWORD }}
+      #     # ./liquibase/liquibase --defaultsFile=./liquibase_airflow.properties status --username=${{ inputs.TDV_USER }} --password=${{ inputs.TDV_PASSWORD }} --logLevel=FINE
+          
+      #     #./liquibase/liquibase --defaultsFile=./liquibase_airflow.properties --logLevel=DEBUG validate --username=${{ inputs.TDV_USER }} --password=${{ inputs.TDV_PASSWORD }}
+      #     ./liquibase/liquibase update --defaultsFile=./liquibase_airflow.properties --logLevel=DEBUG --username=${{ inputs.TDV_USER }} --password=${{ inputs.TDV_PASSWORD }}
+          
+      #     echo "Tags: ${{ github.event.inputs.tags }}" 
+          
+      #     # Uncomment the line below to save changes.  Also, see environment variables under "env" and assign variables accordingly
+      #     #git config --global user.email $user.email; git config --global user.name $user.name; git config pull.rebase false; git add .; git commit -m $"message"; git push -u origin $branch
+          
+      #     #Uncomment the line below to generate a change log.
+      #     #./liquibase/liquibase --defaultsFile=./H2_project/liquibase.properties --changeLogFile=./H2_project/newChangeLog.h2.sql generateChangeLog
+          
+      #     #Uncomment the line below to run the rollbackCount 3 times
+      #     #./liquibase/liquibase --defaultsFile=./H2_project/liquibase.properties rollbackCount 3
+      #     #./liquibase/liquibase --defaultsFile=./H2_project/liquibase.properties status --verbose
+          
+      #     #Uncomment the line below to save changes.  Also, see environment variables under "env" and assign variables accordingly
+      #     #git config --global user.email $user.email; git config --global user.name $user.name; git config pull.rebase false; git add .; git commit -m $"message"; git push -u origin $branch
+          
+      # env:
+      #       user.email: "<email>"
+      #       user.name: "<username>"
+      #       message: "<enter commit message>"
+      #       branch: "<git branch name>"
+      #       LB_VERSION: "4.30.0"  
+      # shell: bash  
+      
