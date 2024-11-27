@@ -16,7 +16,9 @@ runs:
   steps:
     - name: Print
       run: |
-          echo "HI"
+          echo "${{ inputs.TDV_USER }}"
+          echo "${{ inputs.TDV_PASSWORD }}"
+          echo "${{ inputs.TDV_ENV }}"
     # - name: Install dependencies and run a python script from rep02
     #   run: |
     #     python -m pip install --upgrade pip
