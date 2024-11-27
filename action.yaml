@@ -22,16 +22,16 @@ runs:
     #     poetry -C ${{ github.action_path }}/scripts/toml_utilities install
     #     poetry -C ${{ github.action_path }}/scripts/toml_utilities run obtain_build_config terraform_yaml_config $GITHUB_WORKSPACE --ops_type all > solution_repo_config.yaml
     #     cat solution_repo_config.yaml
-    #   shell: bash
+      shell: bash
     
 
-    - name: Install liquibase  
-      run: |
-          curl -L https://github.com/liquibase/liquibase/releases/download/v${LB_VERSION}/liquibase-${LB_VERSION}.zip --output liquibase-${LB_VERSION}.zip
-          unzip -o -d liquibase liquibase-${LB_VERSION}.zip
-          pushd ./liquibase/lib/
-          tar xf ../../.github/workflows/TeraJDBC__indep_indep.20.00.00.34.tar          
-          curl -L https://github.com/liquibase/liquibase-teradata/releases/download/v4.29.2/liquibase-teradata-4.29.2.jar --output ./liquibase-teradata-4.29.2.jar
+    # - name: Install liquibase  
+    #   run: |
+    #       curl -L https://github.com/liquibase/liquibase/releases/download/v${LB_VERSION}/liquibase-${LB_VERSION}.zip --output liquibase-${LB_VERSION}.zip
+    #       unzip -o -d liquibase liquibase-${LB_VERSION}.zip
+    #       pushd ./liquibase/lib/
+    #       tar xf ../../.github/workflows/TeraJDBC__indep_indep.20.00.00.34.tar          
+    #       curl -L https://github.com/liquibase/liquibase-teradata/releases/download/v4.29.2/liquibase-teradata-4.29.2.jar --output ./liquibase-teradata-4.29.2.jar
       #     ls -l
       #     popd
       #     pwd
@@ -70,5 +70,5 @@ runs:
       #       message: "<enter commit message>"
       #       branch: "<git branch name>"
       #       LB_VERSION: "4.30.0"  
-      shell: bash  
+      # shell: bash  
       
