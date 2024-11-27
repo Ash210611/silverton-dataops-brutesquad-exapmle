@@ -7,6 +7,9 @@ inputs:
   TDV_PASSWORD:  # password
     description: 'password'
     required: true
+  TDV_ENV:
+    description: tdv env
+    required: true
     
 runs:
   using: "composite"
