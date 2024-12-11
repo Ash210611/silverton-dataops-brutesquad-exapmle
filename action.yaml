@@ -42,7 +42,7 @@ runs:
           echo "DB ChangeLog Lock Table Name: $databaseChangeLogLockTableName"
           echo "Username: $username"
           echo "Database Environment: $parameter_dbEnv"
-      shell: bash
+        shell: bash
       
     - name: Print
       run: |
