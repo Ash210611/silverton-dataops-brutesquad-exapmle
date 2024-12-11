@@ -24,6 +24,17 @@ runs:
           echo "${{ inputs.TDV_PASSWORD }}"
           echo "${{ inputs.TDV_ENV }}"
           cat "${{ inputs.CONFIG_PATH }}"
+
+    - name: Parse liquibase.properties and Set Environment Variables
+      id: parse_properties
+      run: |
+        while IFS='=' read -r key value; do
+          if [[ "$key" != "#" && "$key" != "" ]]; then
+            echo "$key=$value" >> $GITHUB_ENV
+          fi
+        done < liquibase.properties
+      shell: bash
+
     # - name: Install dependencies and run a python script from rep02
     #   run: |
     #     python -m pip install --upgrade pip
