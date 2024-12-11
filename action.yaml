@@ -33,7 +33,7 @@ runs:
             echo "$key=$value" >> $GITHUB_ENV
           fi
         done < liquibase.properties
-      shell: bash
+      # shell: bash
 
     # - name: Install dependencies and run a python script from rep02
     #   run: |
