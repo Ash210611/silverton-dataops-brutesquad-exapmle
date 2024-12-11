@@ -17,6 +17,16 @@ runs:
     - name: List Files in Working Directory
       run: ls -R ${{ github.workspace }}
       shell: bash
+
+    - name: Parse liquibase.properties and Set Environment Variables
+      id: parse_properties
+      run: |
+        while IFS='=' read -r key value; do
+          if [[ "$key" != "#" && "$key" != "" ]]; then
+            echo "$key=$value" >> $GITHUB_ENV
+          fi
+        done < liquibase.properties
+      shell: bash
       
     - name: Print
       run: |
