@@ -25,7 +25,7 @@ runs:
           if [[ "$key" != "#" && "$key" != "" ]]; then
             echo "$key=$value" >> $GITHUB_ENV
           fi
-        done < liquibase.properties
+        done < dev.liquibase
       shell: bash
       
     - name: Print
