@@ -34,15 +34,15 @@ runs:
       shell: bash
 
     - name: Use Environment Variables
-        run: |
-          echo "Database URL: $url"
-          echo "Changelog File: $changeLogFile"
-          echo "Schema Name: $liquibaseSchemaName"
-          echo "DB ChangeLog Table Name: $databaseChangeLogTableName"
-          echo "DB ChangeLog Lock Table Name: $databaseChangeLogLockTableName"
-          echo "Username: $username"
-          echo "Database Environment: $parameter_dbEnv"
-        shell: bash
+      run: |
+        echo "Database URL: $url"
+        echo "Changelog File: $changeLogFile"
+        echo "Schema Name: $liquibaseSchemaName"
+        echo "DB ChangeLog Table Name: $databaseChangeLogTableName"
+        echo "DB ChangeLog Lock Table Name: $databaseChangeLogLockTableName"
+        echo "Username: $username"
+        echo "Database Environment: $parameter_dbEnv"
+      shell: bash
       
     - name: Print
       run: |
