@@ -25,7 +25,7 @@ runs:
           if [[ "$key" != "#" && "$key" != "" ]]; then
             echo "$key=$value" >> $GITHUB_ENV
           fi
-        done < dev.liquibase
+        done < "${{ inputs.CONFIG_PATH }}"
       shell: bash
       
     - name: Print
