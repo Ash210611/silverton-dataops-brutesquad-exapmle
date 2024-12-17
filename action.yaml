@@ -13,7 +13,7 @@ inputs:
   CONFIG_PATH:
     description: config_path
     required: true
-  CHANGE_LOG_FILE_PATH
+  CHANGE_LOG_FILE_PATH:
     decription: change log file path
     required: true
     
