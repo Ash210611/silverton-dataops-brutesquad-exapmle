@@ -21,38 +21,39 @@ runs:
   using: "composite"
   steps:
     - name: List Files in Working Directory
-      run: ls -R ${{ github.workspace }}
-      shell: bash
+      run: ls Ash210611/silverton-dataops-brutesquad-exapmle/.github/workflows
+      # run: ls -R ${{ github.workspace }}
+      # shell: bash
 
-    - name: Parse liquibase.properties and Set Environment Variables
-      id: parse_properties
-      run: |
-        while IFS=':' read -r key value; do
-          if [[ "$key" != "#" && "$key" != "" ]]; then
-            key=$(echo "$key" | tr -d ' ') # Trims any whitespace around keys
-            value=$(echo "$value" | xargs) # Trims any leading/trailing whitespace from value
-            echo "$key=$value" >> $GITHUB_ENV
-          fi
-        done < "${{ inputs.CONFIG_PATH }}"
-      shell: bash
+    # - name: Parse liquibase.properties and Set Environment Variables
+    #   id: parse_properties
+    #   run: |
+    #     while IFS=':' read -r key value; do
+    #       if [[ "$key" != "#" && "$key" != "" ]]; then
+    #         key=$(echo "$key" | tr -d ' ') # Trims any whitespace around keys
+    #         value=$(echo "$value" | xargs) # Trims any leading/trailing whitespace from value
+    #         echo "$key=$value" >> $GITHUB_ENV
+    #       fi
+    #     done < "${{ inputs.CONFIG_PATH }}"
+    #   shell: bash
 
-    - name: Use Environment Variables
-      run: |
-        echo "Database URL: $url"
-        echo "Changelog File: $changeLogFile"
-        echo "Schema Name: $liquibaseSchemaName"
-        echo "DB ChangeLog Table Name: $databaseChangeLogTableName"
-        echo "DB ChangeLog Lock Table Name: $databaseChangeLogLockTableName"
-        echo "Username: $username"
-        echo "Database Environment: $parameter_dbEnv"
-      shell: bash
+    # - name: Use Environment Variables
+    #   run: |
+    #     echo "Database URL: $url"
+    #     echo "Changelog File: $changeLogFile"
+    #     echo "Schema Name: $liquibaseSchemaName"
+    #     echo "DB ChangeLog Table Name: $databaseChangeLogTableName"
+    #     echo "DB ChangeLog Lock Table Name: $databaseChangeLogLockTableName"
+    #     echo "Username: $username"
+    #     echo "Database Environment: $parameter_dbEnv"
+    #   shell: bash
       
-    - name: Print
-      run: |
-          echo "${{ inputs.TDV_USER }}"
-          echo "${{ inputs.TDV_PASSWORD }}"
-          echo "${{ inputs.TDV_ENV }}"
-          cat "${{ inputs.CONFIG_PATH }}"
+    # - name: Print
+    #   run: |
+    #       echo "${{ inputs.TDV_USER }}"
+    #       echo "${{ inputs.TDV_PASSWORD }}"
+    #       echo "${{ inputs.TDV_ENV }}"
+    #       cat "${{ inputs.CONFIG_PATH }}"
 
 
     # - name: Install dependencies and run a python script from rep02
