@@ -24,7 +24,7 @@ runs:
         python -m pip install --upgrade pip
         pip install flake8 pytest poetry
         poetry -C ${{ github.action_path }}/scripts/toml_utilities install
-        poetry -C ${{ github.action_path }}/scripts/toml_utilities run obtain_build_config terraform_yaml_config $GITHUB_WORKSPACE --ops_type all > solution_repo_config.yaml
+        poetry -C ${{ github.action_path }}/scripts/toml_utilities run obtain_build_config terraform_yaml_config $GITHUB_WORKSPACE --ops_type tdv_ddl > solution_repo_config.yaml
         cat solution_repo_config.yaml
       shell: bash
 
@@ -39,6 +39,10 @@ runs:
           yq eval '.[] | .[].name' solution_repo_config.yaml > names.txt
           cat names.txt | while read name; do
             echo "Processing $name"
+            mkdir -p ${{ github.workspace }}/config
+            env_lower=$(echo "${{ inputs.TDV_Environment }}" | tr '[:lower:]' '[:upper:]')
+            cp $GITHUB_WORKSPACE/solution-repo/$name/config/${env_lower}/liquibase.properties ${{ github.workspace }}/config
+            cp $GITHUB_WORKSPACE/solution-repo/$name/${{ inputs.TDV_Environment }}.changelog.xml" "${{ github.workspace }}/config
             # Insert any specific operations you want to perform with "$name" here
           done
       shell: bash
