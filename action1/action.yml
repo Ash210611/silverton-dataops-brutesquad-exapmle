@@ -30,6 +30,7 @@ runs:
 
     - name: Print
       run: cat solution_repo_config.yaml
+      shell: bash
     
       
     # - name: Print
