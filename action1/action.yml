@@ -41,7 +41,7 @@ runs:
       shell: bash
 
     - name: Print github worksapce contents
-      run: ls $GITHUB_WORKSPACE/data_ops_blueprints_tdv_ddl
+      run: ls -alh $GITHUB_WORKSPACE/data_ops_blueprints_tdv_ddl
       shell: bash
     
       
