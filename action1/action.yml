@@ -46,6 +46,13 @@ runs:
             # Insert any specific operations you want to perform with "$name" here
           done
       shell: bash
+
+    - name: Print the files
+      run: |
+        ls -alh $GITHUB_WORKSPACE/config
+        # cat $GITHUB_WORKSPACE/config/liquibase.properties
+        # cat $GITHUB_WORKSPACE/config/dev.changelog.xml
+      shell: bash
     
       
     # - name: Print
