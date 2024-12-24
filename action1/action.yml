@@ -42,7 +42,7 @@ runs:
             mkdir -p ${{ github.workspace }}/config
             env_lower=$(echo "${{ inputs.TDV_ENV }}" | tr '[:lower:]' '[:upper:]')
             cp $GITHUB_WORKSPACE/solution-repo/$name/config/${env_lower}/liquibase.properties ${{ github.workspace }}/config
-            cp $GITHUB_WORKSPACE/solution-repo/$name/${{ inputs.TDV_Environment }}.changelog.xml" "${{ github.workspace }}/config
+            cp $GITHUB_WORKSPACE/solution-repo/$name/${{ inputs.TDV_ENV }}.changelog.xml ${{ github.workspace }}/config
             # Insert any specific operations you want to perform with "$name" here
           done
       shell: bash
