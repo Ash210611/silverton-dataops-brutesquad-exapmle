@@ -20,10 +20,19 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: List Files in Working Directory
-      run: ls Ash210611/silverton-dataops-brutesquad-exapmle/.github/workflows
-      # run: ls -R ${{ github.workspace }}
-      # shell: bash
+    - name: Checkout DataOps Repository
+      uses: actions/checkout@v4
+      with:
+        repository: Ash210611/silverton-solution-brutesquad-example
+        path: solrepo
+    
+    - name: print
+      run: cat solrepo
+    
+    # - name: List Files in Working Directory
+    #   run: ls Ash210611/silverton-dataops-brutesquad-exapmle/.github/workflows
+    #   # run: ls -R ${{ github.workspace }}
+    #   # shell: bash
 
     # - name: Parse liquibase.properties and Set Environment Variables
     #   id: parse_properties
