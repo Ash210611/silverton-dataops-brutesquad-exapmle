@@ -41,7 +41,7 @@ runs:
       shell: bash
 
     - name: Print github worksapce contents
-      run: ls -alh $GITHUB_WORKSPACE
+      run: ls -alh $GITHUB_WORKSPACE/solution-repo
       shell: bash
     
       
