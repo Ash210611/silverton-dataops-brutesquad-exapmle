@@ -18,6 +18,7 @@ runs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.10"
+    
     - name: Install dependencies and run a python script from rep02
       run: |
         python -m pip install --upgrade pip
@@ -26,6 +27,10 @@ runs:
         poetry -C ${{ github.action_path }}/scripts/toml_utilities run obtain_build_config terraform_yaml_config $GITHUB_WORKSPACE --ops_type all > solution_repo_config.yaml
         cat solution_repo_config.yaml
       shell: bash
+
+    - name: Print
+      run: cat solution_repo_config.yaml
+    
       
     # - name: Print
     #   run: |
