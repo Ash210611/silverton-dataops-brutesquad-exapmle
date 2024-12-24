@@ -50,8 +50,8 @@ runs:
     - name: Print the files
       run: |
         ls -alh $GITHUB_WORKSPACE/config
-        # cat $GITHUB_WORKSPACE/config/liquibase.properties
-        # cat $GITHUB_WORKSPACE/config/dev.changelog.xml
+        cat $GITHUB_WORKSPACE/config/liquibase.properties
+        cat $GITHUB_WORKSPACE/config/dev.changelog.xml
       shell: bash
     
       
