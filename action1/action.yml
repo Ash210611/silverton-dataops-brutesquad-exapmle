@@ -36,9 +36,9 @@ runs:
       run: echo "${{ github.action_path }}"
       shell: bash
 
-    - name: Print github worksapce
-      run: echo "${{ $GITHUB_WORKSPACE }}"
-      shell: bash
+    # - name: Print github worksapce
+    #   run: echo "${{ $GITHUB_WORKSPACE }}"
+    #   shell: bash
     
       
     # - name: Print
