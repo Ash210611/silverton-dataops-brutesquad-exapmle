@@ -1,0 +1,10 @@
+default:
+  us-east-1:
+    common:
+      region_prefix: us1
+    dev:
+      region_prefix: us1
+    test:
+      region_prefix: us1
+    prod:
+      region_prefix: us1

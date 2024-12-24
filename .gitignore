@@ -1,0 +1,8 @@
+.DS_Store
+
+# IDE
+.idea/
+target/
+*.iml
+.vscode
+/env.list
