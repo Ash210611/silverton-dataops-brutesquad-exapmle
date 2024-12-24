@@ -31,6 +31,7 @@ runs:
     - name: Install yq
       run: |
         sudo snap install yq
+      shell: bash
 
     - name: Extract and print all 'name' values
       run: |
