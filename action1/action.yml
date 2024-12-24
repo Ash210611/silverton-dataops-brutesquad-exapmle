@@ -33,9 +33,13 @@ runs:
         sudo snap install yq
       shell: bash
 
-    - name: Extract and print all 'name' values
+    - name: Processing the solution_repo_config_file
       run: |
-        yq eval '.[] | .[].name' solution_repo_config.yaml
+        # Read all names into an array
+        readarray -t names < <(yq e '.[].name' solution_repo_config.yaml)
+        for name in "${names[@]}"; do
+          echo "Processing $name"
+        done
       shell: bash
     
       
