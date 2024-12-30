@@ -39,10 +39,10 @@ runs:
           yq eval '.[] | .[].name' solution_repo_config.yaml > names.txt
           cat names.txt | while read name; do
             echo "Processing $name"
-            mkdir -p ${{ github.workspace }}/config
+            mkdir -p ${{ github.workspace }}/$name
             env_lower=$(echo "${{ inputs.TDV_ENV }}" | tr '[:lower:]' '[:upper:]')
-            cp $GITHUB_WORKSPACE/solution-repo/$name/config/${env_lower}/liquibase.properties ${{ github.workspace }}/config
-            cp $GITHUB_WORKSPACE/solution-repo/$name/${{ inputs.TDV_ENV }}.changelog.xml ${{ github.workspace }}/config
+            cp $GITHUB_WORKSPACE/solution-repo/$name/config/${env_lower}/liquibase.properties ${{ github.workspace }}/$name
+            cp $GITHUB_WORKSPACE/solution-repo/$name/${{ inputs.TDV_ENV }}.changelog.xml ${{ github.workspace }}/$name
             # Insert any specific operations you want to perform with "$name" here
           done
       shell: bash
