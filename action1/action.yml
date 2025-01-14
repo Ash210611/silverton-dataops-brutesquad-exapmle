@@ -54,10 +54,10 @@ runs:
           yq eval '.[] | .[].name' solution_repo_config.yaml > names.txt
           # cat names.txt | while read name; do
           #   echo "Processing $name"
-          #   mkdir -p ${{ github.workspace }}/$name
+          #   mkdir -p $GITHUB_WORKSPACE/$name
           #   env_lower=$(echo "${{ inputs.TDV_ENV }}" | tr '[:lower:]' '[:upper:]')
-          #   cp $GITHUB_WORKSPACE/solution-repo/$name/config/${env_lower}/liquibase.properties ${{ github.workspace }}/$name
-          #   cp $GITHUB_WORKSPACE/solution-repo/$name/${{ inputs.TDV_ENV }}.changelog.xml ${{ github.workspace }}/$name
+          #   cp $GITHUB_WORKSPACE/solution-repo/$name/config/${env_lower}/liquibase.properties $GITHUB_WORKSPACE/$name
+          #   cp $GITHUB_WORKSPACE/solution-repo/$name/${{ inputs.TDV_ENV }}.changelog.xml $GITHUB_WORKSPACE/$name
           #   # Insert any specific operations you want to perform with "$name" here
           # done
       shell: bash
@@ -77,7 +77,7 @@ runs:
           cp "$GITHUB_WORKSPACE/solution-repo/$name/${env_upper}.changelog.xml" "${{ github.workspace }}/$line"
           
           # Navigate to the created directory
-          cd "${{ github.workspace }}/$name"
+          cd "$GITHUB_WORKSPACE/$line"
     
           # Execute Liquibase commands dynamically based on inputs
           if [ "${{ inputs.LIQUIBASE_COMMAND }}" = "update" ]; then
