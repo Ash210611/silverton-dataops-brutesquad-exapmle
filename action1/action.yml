@@ -105,13 +105,11 @@ runs:
           
           # Navigate to the created directory
           cd "$GITHUB_WORKSPACE/$line"
-          # ls -alh $GITHUB_WORKSPACE/$line
-          ls $GITHUB_WORKSPACE/liquibase
     
           # Execute Liquibase commands dynamically based on inputs
           if [ "${{ inputs.LIQUIBASE_COMMAND }}" = "update" ]; then
             echo "-- Do Liquibase update for $name"
-            ./liquibase/liquibase update \
+            $GITHUB_WORKSPACE/liquibase/liquibase update \
               --defaultsFile=./liquibase.properties \
               --logLevel=FINE \
               --username="${{ inputs.TDV_USER }}" \
@@ -125,7 +123,7 @@ runs:
               --password="${{ inputs.TDV_PASSWORD }}"
           elif [ "${{ inputs.LIQUIBASE_COMMAND }}" = "rollback" ] && [ -n "${{ inputs.LIQUIBASE_TAG }}" ] && [ "${{ inputs.ASSIGN_LIQUIBASE_TAG }}" = "true" ]; then
             echo "-- Do Liquibase rollback for $name"
-            ./liquibase/liquibase rollback --tag="${{ inputs.LIQUIBASE_TAG }}" \
+            $GITHUB_WORKSPACE/liquibase/liquibase rollback --tag="${{ inputs.LIQUIBASE_TAG }}" \
               --defaultsFile=./liquibase.properties \
               --logLevel=FINE \
               --username="${{ inputs.TDV_USER }}" \
@@ -135,7 +133,7 @@ runs:
           # Optional: Add Liquibase tag if required
           if [ "${{ inputs.ASSIGN_LIQUIBASE_TAG }}" = "true" ] && [ "${{ inputs.LIQUIBASE_COMMAND }}" = "update" ]; then
             echo "-- Do Liquibase tag for $name with tag=${{ inputs.LIQUIBASE_TAG }}"
-            ./liquibase/liquibase tag --tag="${{ inputs.LIQUIBASE_TAG }}" \
+            $GITHUB_WORKSPACE/liquibase/liquibase tag --tag="${{ inputs.LIQUIBASE_TAG }}" \
               --defaultsFile=./liquibase.properties \
               --logLevel=FINE \
               --username="${{ inputs.TDV_USER }}" \
@@ -148,73 +146,4 @@ runs:
       shell: bash
 
 
-    # - name: Processing the soultion repo and executing the liquibase commands
-    #   run: |
-    #     # Extract names from each category and store them line by line in a file
-    #       yq eval '.[] | .[].name' solution_repo_config.yaml > names.txt
-    #       cat names.txt | while read name; do
-    #         echo "Processing $name"
-    #         mkdir -p ${{ github.workspace }}/$name
-    #         env_lower=$(echo "${{ inputs.TDV_ENV }}" | tr '[:lower:]' '[:upper:]')
-    #         cp $GITHUB_WORKSPACE/solution-repo/$name/config/${env_lower}/liquibase.properties ${{ github.workspace }}/$name
-    #         cp $GITHUB_WORKSPACE/solution-repo/$name/${{ inputs.TDV_ENV }}.changelog.xml ${{ github.workspace }}/$name
-    #         # Insert any specific operations you want to perform with "$name" here
-    #       done
-    #   shell: bash
-
-    # - name: Print the files
-    #   run: |
-    #     ls -alh $GITHUB_WORKSPACE/config
-    #     cat $GITHUB_WORKSPACE/config/liquibase.properties
-    #     cat $GITHUB_WORKSPACE/config/dev.changelog.xml
-    #   shell: bash
-
-
-    # - name: Add Liquibase tag
-    #   if: "${{ inputs.ASSIGN_LIQUIBASE_TAG && inputs.LIQUIBASE_COMMAND == 'update' }}"
-    #   run: |
-    #     echo "-- Do Liquibase tag. tag=${{ inputs.LIQUIBASE_TAG }}"
-        
-    #     ./liquibase/liquibase tag --tag=${{ inputs.LIQUIBASE_TAG }} \
-    #     --defaultsFile=./liquibase.properties \
-    #     --logLevel=FINE \
-    #     --username=${{ inputs.TDV_USER }} --password=${{ inputs.TDV_PASSWORD }}
-    #   shell: bash
-      
-    # - name: Execute liquibase status
-    #   if: "${{ inputs.LIQUIBASE_COMMAND == 'status' }}"
-    #   run: |
-    #     echo "-- Do Liquibase status."
-        
-    #     ./liquibase/liquibase status \
-    #     --defaultsFile=./liquibase.properties \
-    #     --logLevel=FINE \
-    #     --username=${{ inputs.TDV_USER }} --password=${{ inputs.TDV_PASSWORD }}
-    #   shell: bash
-      
-    # - name: Execute liquibase update
-    #   if: "${{ inputs.LIQUIBASE_COMMAND == 'update' }}"
-    #   run: |
-    #     echo "-- Do Liquibase update."
-    #     echo "-- Current Directory:"
-    #     pwd
-        
-    #     ./liquibase/liquibase update \
-    #     --defaultsFile=./liquibase.properties \
-    #     --logLevel=FINE \
-    #     --username=${{ inputs.TDV_USER }} --password=${{ inputs.TDV_PASSWORD }}
-    #   shell: bash
-      
-    # - name: Execute liquibase rollback
-    #   if: "${{ inputs.LIQUIBASE_COMMAND == 'rollback' && inputs.LIQUIBASE_TAG != '' && inputs.ASSIGN_LIQUIBASE_TAG }}"
-    #   run: |
-    #     echo "-- Do Liquibase rollback."
-        
-    #     ./liquibase/liquibase rollback --tag=${{ inputs.LIQUIBASE_TAG }} \
-    #     --defaultsFile=./liquibase.properties \
-    #     --logLevel=FINE \
-    #     --username=${{ inputs.TDV_USER }} --password=${{ inputs.TDV_PASSWORD }}
-    #   shell: bash
-    
-      
     
