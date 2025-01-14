@@ -43,6 +43,33 @@ runs:
         cat solution_repo_config.yaml
       shell: bash
 
+    - name: Copy JDBC Driver to local folder
+      run: |
+        mkdir lib
+        echo "cp ${{ github.action_path }}/lib/TeraJDBC__indep_indep.20.00.00.34.tar lib/"
+        tar -xvf ${{ github.action_path }}/lib/TeraJDBC__indep_indep.20.00.00.34.tar -C lib/
+      shell: bash
+      
+    - name: Get JAR files
+      run: |
+        curl -L https://github.com/liquibase/liquibase-teradata/releases/download/v${LB_VERSION}/liquibase-teradata-${LB_VERSION}.jar --output lib/liquibase-teradata-${LB_VERSION}.jar
+      env:
+        LB_VERSION: "4.29.2"
+      shell: bash
+      
+    - name: Install liquibase
+      run: |
+        curl -L https://github.com/liquibase/liquibase/releases/download/v${LB_VERSION}/liquibase-${LB_VERSION}.zip --output liquibase-${LB_VERSION}.zip
+        unzip -o -d liquibase liquibase-${LB_VERSION}.zip
+
+        pushd ./liquibase/lib/
+        tar xf ${{ github.action_path }}/lib/TeraJDBC__indep_indep.20.00.00.34.tar
+        curl -L https://github.com/liquibase/liquibase-teradata/releases/download/v4.29.2/liquibase-teradata-4.29.2.jar --output ./liquibase-teradata-4.29.2.jar
+        popd
+      env:
+        LB_VERSION: "4.30.0"
+      shell: bash
+
     - name: Install yq
       run: |
         sudo snap install yq
