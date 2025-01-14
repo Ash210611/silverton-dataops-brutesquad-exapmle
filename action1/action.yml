@@ -49,60 +49,60 @@ runs:
       shell: bash
 
     - name: Process and Execute Liquibase Commands
-  run: |
-    # Read and process each entry in names.txt dynamically
-    while read -r line; do
-      # Extract name and corresponding category (tdv_ddl, tdv_dml, etc.)
-      echo "Processing category and name: $line"
-      name=$(echo "$line" | cut -d':' -f2 | tr -d ' ')
-      
-      # Create directory and copy required files
-      mkdir -p "${{ github.workspace }}/$name"
-      env_upper=$(echo "${{ inputs.TDV_ENV }}" | tr '[:upper:]' '[:lower:]' )
-      cp "$GITHUB_WORKSPACE/solution-repo/$name/config/${{ inputs.TDV_ENV }}/liquibase.properties" "${{ github.workspace }}/$name"
-      cp "$GITHUB_WORKSPACE/solution-repo/$name/${env_upper}.changelog.xml" "${{ github.workspace }}/$name"
-      
-      # Navigate to the created directory
-      cd "${{ github.workspace }}/$name"
-
-      # Execute Liquibase commands dynamically based on inputs
-      if [ "${{ inputs.LIQUIBASE_COMMAND }}" = "update" ]; then
-        echo "-- Do Liquibase update for $name"
-        ./liquibase/liquibase update \
-          --defaultsFile=./liquibase.properties \
-          --logLevel=FINE \
-          --username="${{ inputs.TDV_USER }}" \
-          --password="${{ inputs.TDV_PASSWORD }}"
-      elif [ "${{ inputs.LIQUIBASE_COMMAND }}" = "status" ]; then
-        echo "-- Do Liquibase status for $name"
-        ./liquibase/liquibase status \
-          --defaultsFile=./liquibase.properties \
-          --logLevel=FINE \
-          --username="${{ inputs.TDV_USER }}" \
-          --password="${{ inputs.TDV_PASSWORD }}"
-      elif [ "${{ inputs.LIQUIBASE_COMMAND }}" = "rollback" ] && [ -n "${{ inputs.LIQUIBASE_TAG }}" ] && [ "${{ inputs.ASSIGN_LIQUIBASE_TAG }}" = "true" ]; then
-        echo "-- Do Liquibase rollback for $name"
-        ./liquibase/liquibase rollback --tag="${{ inputs.LIQUIBASE_TAG }}" \
-          --defaultsFile=./liquibase.properties \
-          --logLevel=FINE \
-          --username="${{ inputs.TDV_USER }}" \
-          --password="${{ inputs.TDV_PASSWORD }}"
-      fi
-      
-      # Optional: Add Liquibase tag if required
-      if [ "${{ inputs.ASSIGN_LIQUIBASE_TAG }}" = "true" ] && [ "${{ inputs.LIQUIBASE_COMMAND }}" = "update" ]; then
-        echo "-- Do Liquibase tag for $name with tag=${{ inputs.LIQUIBASE_TAG }}"
-        ./liquibase/liquibase tag --tag="${{ inputs.LIQUIBASE_TAG }}" \
-          --defaultsFile=./liquibase.properties \
-          --logLevel=FINE \
-          --username="${{ inputs.TDV_USER }}" \
-          --password="${{ inputs.TDV_PASSWORD }}"
-      fi
-
-      # Return to the workspace directory for the next iteration
-      cd "${{ github.workspace }}"
-    done < names.txt
-  shell: bash
+      run: |
+        # Read and process each entry in names.txt dynamically
+        while read -r line; do
+          # Extract name and corresponding category (tdv_ddl, tdv_dml, etc.)
+          echo "Processing category and name: $line"
+          name=$(echo "$line" | cut -d':' -f2 | tr -d ' ')
+          
+          # Create directory and copy required files
+          mkdir -p "${{ github.workspace }}/$name"
+          env_upper=$(echo "${{ inputs.TDV_ENV }}" | tr '[:upper:]' '[:lower:]' )
+          cp "$GITHUB_WORKSPACE/solution-repo/$name/config/${{ inputs.TDV_ENV }}/liquibase.properties" "${{ github.workspace }}/$name"
+          cp "$GITHUB_WORKSPACE/solution-repo/$name/${env_upper}.changelog.xml" "${{ github.workspace }}/$name"
+          
+          # Navigate to the created directory
+          cd "${{ github.workspace }}/$name"
+    
+          # Execute Liquibase commands dynamically based on inputs
+          if [ "${{ inputs.LIQUIBASE_COMMAND }}" = "update" ]; then
+            echo "-- Do Liquibase update for $name"
+            ./liquibase/liquibase update \
+              --defaultsFile=./liquibase.properties \
+              --logLevel=FINE \
+              --username="${{ inputs.TDV_USER }}" \
+              --password="${{ inputs.TDV_PASSWORD }}"
+          elif [ "${{ inputs.LIQUIBASE_COMMAND }}" = "status" ]; then
+            echo "-- Do Liquibase status for $name"
+            ./liquibase/liquibase status \
+              --defaultsFile=./liquibase.properties \
+              --logLevel=FINE \
+              --username="${{ inputs.TDV_USER }}" \
+              --password="${{ inputs.TDV_PASSWORD }}"
+          elif [ "${{ inputs.LIQUIBASE_COMMAND }}" = "rollback" ] && [ -n "${{ inputs.LIQUIBASE_TAG }}" ] && [ "${{ inputs.ASSIGN_LIQUIBASE_TAG }}" = "true" ]; then
+            echo "-- Do Liquibase rollback for $name"
+            ./liquibase/liquibase rollback --tag="${{ inputs.LIQUIBASE_TAG }}" \
+              --defaultsFile=./liquibase.properties \
+              --logLevel=FINE \
+              --username="${{ inputs.TDV_USER }}" \
+              --password="${{ inputs.TDV_PASSWORD }}"
+          fi
+          
+          # Optional: Add Liquibase tag if required
+          if [ "${{ inputs.ASSIGN_LIQUIBASE_TAG }}" = "true" ] && [ "${{ inputs.LIQUIBASE_COMMAND }}" = "update" ]; then
+            echo "-- Do Liquibase tag for $name with tag=${{ inputs.LIQUIBASE_TAG }}"
+            ./liquibase/liquibase tag --tag="${{ inputs.LIQUIBASE_TAG }}" \
+              --defaultsFile=./liquibase.properties \
+              --logLevel=FINE \
+              --username="${{ inputs.TDV_USER }}" \
+              --password="${{ inputs.TDV_PASSWORD }}"
+          fi
+    
+          # Return to the workspace directory for the next iteration
+          cd "${{ github.workspace }}"
+        done < names.txt
+      shell: bash
 
 
     # - name: Processing the soultion repo and executing the liquibase commands
