@@ -71,10 +71,10 @@ runs:
           name=$(echo "$line" | cut -d':' -f2 | tr -d ' ')
           
           # Create directory and copy required files
-          mkdir -p "${{ github.workspace }}/$name"
+          mkdir -p "${{ github.workspace }}/$line"
           env_upper=$(echo "${{ inputs.TDV_ENV }}" | tr '[:upper:]' '[:lower:]' )
-          cp "$GITHUB_WORKSPACE/solution-repo/$name/config/${{ inputs.TDV_ENV }}/liquibase.properties" "${{ github.workspace }}/$name"
-          cp "$GITHUB_WORKSPACE/solution-repo/$name/${env_upper}.changelog.xml" "${{ github.workspace }}/$name"
+          cp "$GITHUB_WORKSPACE/solution-repo/$name/config/${{ inputs.TDV_ENV }}/liquibase.properties" "${{ github.workspace }}/$line"
+          cp "$GITHUB_WORKSPACE/solution-repo/$name/${env_upper}.changelog.xml" "${{ github.workspace }}/$line"
           
           # Navigate to the created directory
           cd "${{ github.workspace }}/$name"
