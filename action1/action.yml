@@ -1,15 +1,30 @@
 name: "OPS_TDV_action"
 description: "Deploys SQL code from a solution repo to TDV"
 inputs:
-  TDV_USER:  # id
-    description: 'user'
+  TDV_USER:
+    description: 'username for TDV login'
     required: true
-  TDV_PASSWORD:  # password
-    description: 'password'
+  TDV_PASSWORD:
+    description: 'password for TDV login'
     required: true
   TDV_ENV:
-    description: tdv env
+    description: 'environment of TDV server'
     required: true
+  LIQUIBASE_COMMAND:
+    description: 'The command for liquibase to execute such as update'
+    required: true
+  OPS_TYPE:
+    description: 'The SQL types: tdv_ddl, tdv_dml, stored_proc, or all'
+    required: true
+  RUN_RULES_ENGINE:
+    description: 'Run the Rules Engine on the SQL files or not'
+    required: true
+  ASSIGN_LIQUIBASE_TAG:
+    description: 'Assign the tag on this run or not'
+    required: true
+  LIQUIBASE_TAG:
+    description: 'Only if ASSIGN_LIQUIBASE_TAG is true, this tag then be used'
+    required: false
     
 runs:
   using: "composite"
@@ -24,7 +39,7 @@ runs:
         python -m pip install --upgrade pip
         pip install flake8 pytest poetry
         poetry -C ${{ github.action_path }}/scripts/toml_utilities install
-        poetry -C ${{ github.action_path }}/scripts/toml_utilities run obtain_build_config terraform_yaml_config $GITHUB_WORKSPACE --ops_type all > solution_repo_config.yaml
+        poetry -C ${{ github.action_path }}/scripts/toml_utilities run obtain_build_config terraform_yaml_config $GITHUB_WORKSPACE --ops_type ${{ inputs.OPS_TYPE }} > solution_repo_config.yaml
         cat solution_repo_config.yaml
       shell: bash
 
@@ -33,96 +48,130 @@ runs:
         sudo snap install yq
       shell: bash
 
-    - name: Processing the solution_repo_config_file
-      run: |
-        # Extract names from each category and store them line by line in a file
-          yq eval '.[] | .[].name' solution_repo_config.yaml > names.txt
-          cat names.txt | while read name; do
-            echo "Processing $name"
-            mkdir -p ${{ github.workspace }}/$name
-            env_lower=$(echo "${{ inputs.TDV_ENV }}" | tr '[:lower:]' '[:upper:]')
-            cp $GITHUB_WORKSPACE/solution-repo/$name/config/${env_lower}/liquibase.properties ${{ github.workspace }}/$name
-            cp $GITHUB_WORKSPACE/solution-repo/$name/${{ inputs.TDV_ENV }}.changelog.xml ${{ github.workspace }}/$name
-            # Insert any specific operations you want to perform with "$name" here
-          done
-      shell: bash
+    - name: Process and Execute Liquibase Commands
+  run: |
+    # Read and process each entry in names.txt dynamically
+    while read -r line; do
+      # Extract name and corresponding category (tdv_ddl, tdv_dml, etc.)
+      echo "Processing category and name: $line"
+      name=$(echo "$line" | cut -d':' -f2 | tr -d ' ')
+      
+      # Create directory and copy required files
+      mkdir -p "${{ github.workspace }}/$name"
+      env_upper=$(echo "${{ inputs.TDV_ENV }}" | tr '[:upper:]' '[:lower:]' )
+      cp "$GITHUB_WORKSPACE/solution-repo/$name/config/${{ inputs.TDV_ENV }}/liquibase.properties" "${{ github.workspace }}/$name"
+      cp "$GITHUB_WORKSPACE/solution-repo/$name/${env_upper}.changelog.xml" "${{ github.workspace }}/$name"
+      
+      # Navigate to the created directory
+      cd "${{ github.workspace }}/$name"
 
-    - name: Print the files
-      run: |
-        ls -alh $GITHUB_WORKSPACE/config
-        cat $GITHUB_WORKSPACE/config/liquibase.properties
-        cat $GITHUB_WORKSPACE/config/dev.changelog.xml
-      shell: bash
+      # Execute Liquibase commands dynamically based on inputs
+      if [ "${{ inputs.LIQUIBASE_COMMAND }}" = "update" ]; then
+        echo "-- Do Liquibase update for $name"
+        ./liquibase/liquibase update \
+          --defaultsFile=./liquibase.properties \
+          --logLevel=FINE \
+          --username="${{ inputs.TDV_USER }}" \
+          --password="${{ inputs.TDV_PASSWORD }}"
+      elif [ "${{ inputs.LIQUIBASE_COMMAND }}" = "status" ]; then
+        echo "-- Do Liquibase status for $name"
+        ./liquibase/liquibase status \
+          --defaultsFile=./liquibase.properties \
+          --logLevel=FINE \
+          --username="${{ inputs.TDV_USER }}" \
+          --password="${{ inputs.TDV_PASSWORD }}"
+      elif [ "${{ inputs.LIQUIBASE_COMMAND }}" = "rollback" ] && [ -n "${{ inputs.LIQUIBASE_TAG }}" ] && [ "${{ inputs.ASSIGN_LIQUIBASE_TAG }}" = "true" ]; then
+        echo "-- Do Liquibase rollback for $name"
+        ./liquibase/liquibase rollback --tag="${{ inputs.LIQUIBASE_TAG }}" \
+          --defaultsFile=./liquibase.properties \
+          --logLevel=FINE \
+          --username="${{ inputs.TDV_USER }}" \
+          --password="${{ inputs.TDV_PASSWORD }}"
+      fi
+      
+      # Optional: Add Liquibase tag if required
+      if [ "${{ inputs.ASSIGN_LIQUIBASE_TAG }}" = "true" ] && [ "${{ inputs.LIQUIBASE_COMMAND }}" = "update" ]; then
+        echo "-- Do Liquibase tag for $name with tag=${{ inputs.LIQUIBASE_TAG }}"
+        ./liquibase/liquibase tag --tag="${{ inputs.LIQUIBASE_TAG }}" \
+          --defaultsFile=./liquibase.properties \
+          --logLevel=FINE \
+          --username="${{ inputs.TDV_USER }}" \
+          --password="${{ inputs.TDV_PASSWORD }}"
+      fi
+
+      # Return to the workspace directory for the next iteration
+      cd "${{ github.workspace }}"
+    done < names.txt
+  shell: bash
+
+
+    # - name: Processing the soultion repo and executing the liquibase commands
+    #   run: |
+    #     # Extract names from each category and store them line by line in a file
+    #       yq eval '.[] | .[].name' solution_repo_config.yaml > names.txt
+    #       cat names.txt | while read name; do
+    #         echo "Processing $name"
+    #         mkdir -p ${{ github.workspace }}/$name
+    #         env_lower=$(echo "${{ inputs.TDV_ENV }}" | tr '[:lower:]' '[:upper:]')
+    #         cp $GITHUB_WORKSPACE/solution-repo/$name/config/${env_lower}/liquibase.properties ${{ github.workspace }}/$name
+    #         cp $GITHUB_WORKSPACE/solution-repo/$name/${{ inputs.TDV_ENV }}.changelog.xml ${{ github.workspace }}/$name
+    #         # Insert any specific operations you want to perform with "$name" here
+    #       done
+    #   shell: bash
+
+    # - name: Print the files
+    #   run: |
+    #     ls -alh $GITHUB_WORKSPACE/config
+    #     cat $GITHUB_WORKSPACE/config/liquibase.properties
+    #     cat $GITHUB_WORKSPACE/config/dev.changelog.xml
+    #   shell: bash
+
+
+    # - name: Add Liquibase tag
+    #   if: "${{ inputs.ASSIGN_LIQUIBASE_TAG && inputs.LIQUIBASE_COMMAND == 'update' }}"
+    #   run: |
+    #     echo "-- Do Liquibase tag. tag=${{ inputs.LIQUIBASE_TAG }}"
+        
+    #     ./liquibase/liquibase tag --tag=${{ inputs.LIQUIBASE_TAG }} \
+    #     --defaultsFile=./liquibase.properties \
+    #     --logLevel=FINE \
+    #     --username=${{ inputs.TDV_USER }} --password=${{ inputs.TDV_PASSWORD }}
+    #   shell: bash
+      
+    # - name: Execute liquibase status
+    #   if: "${{ inputs.LIQUIBASE_COMMAND == 'status' }}"
+    #   run: |
+    #     echo "-- Do Liquibase status."
+        
+    #     ./liquibase/liquibase status \
+    #     --defaultsFile=./liquibase.properties \
+    #     --logLevel=FINE \
+    #     --username=${{ inputs.TDV_USER }} --password=${{ inputs.TDV_PASSWORD }}
+    #   shell: bash
+      
+    # - name: Execute liquibase update
+    #   if: "${{ inputs.LIQUIBASE_COMMAND == 'update' }}"
+    #   run: |
+    #     echo "-- Do Liquibase update."
+    #     echo "-- Current Directory:"
+    #     pwd
+        
+    #     ./liquibase/liquibase update \
+    #     --defaultsFile=./liquibase.properties \
+    #     --logLevel=FINE \
+    #     --username=${{ inputs.TDV_USER }} --password=${{ inputs.TDV_PASSWORD }}
+    #   shell: bash
+      
+    # - name: Execute liquibase rollback
+    #   if: "${{ inputs.LIQUIBASE_COMMAND == 'rollback' && inputs.LIQUIBASE_TAG != '' && inputs.ASSIGN_LIQUIBASE_TAG }}"
+    #   run: |
+    #     echo "-- Do Liquibase rollback."
+        
+    #     ./liquibase/liquibase rollback --tag=${{ inputs.LIQUIBASE_TAG }} \
+    #     --defaultsFile=./liquibase.properties \
+    #     --logLevel=FINE \
+    #     --username=${{ inputs.TDV_USER }} --password=${{ inputs.TDV_PASSWORD }}
+    #   shell: bash
     
       
-    # - name: Print
-    #   run: |
-    #       echo "${{ inputs.TDV_USER }}"
-    #       echo "${{ inputs.TDV_PASSWORD }}"
-    #       echo "${{ inputs.TDV_ENV }}"
-    #       cat "${{ inputs.CONFIG_PATH }}"
-          
-    # - name: Select the Ip
-    #   id: setting_ip
-    #   run: |
-    #       case "${{ inputs.TDV_ENV }}" in
-    #         dev)
-    #           TDV_IP="${{ secrets.TDV_DEV_IP }}"
-    #           ;;
-    #         prod)
-    #           TDV_IP="${{ secrets.TDV_PROD_IP }}"
-    #           ;;
-    #         test)
-    #           TDV_IP="${{ secrets.TDV_TEST_IP }}"
-    #           ;;
-    #       esac
-    #       echo "tdv ip=${TDV_IP}"
-    #       echo "TDV_IP=$TDV_IP" >> $GITHUB_ENV
     
-
-    # - name: Install liquibase  
-    #   run: |
-    #       curl -L https://github.com/liquibase/liquibase/releases/download/v${LB_VERSION}/liquibase-${LB_VERSION}.zip --output liquibase-${LB_VERSION}.zip
-    #       unzip -o -d liquibase liquibase-${LB_VERSION}.zip
-    #       pushd ./liquibase/lib/
-    #       tar xf ../../.github/workflows/TeraJDBC__indep_indep.20.00.00.34.tar          
-    #       curl -L https://github.com/liquibase/liquibase-teradata/releases/download/v4.29.2/liquibase-teradata-4.29.2.jar --output ./liquibase-teradata-4.29.2.jar
-    #       ls -l
-    #       popd
-    #       pwd
-    #       echo username is ${{ inputs.TDV_USER }}
-    #       echo password is ${{ inputs.TDV_PASSWORD }}
-    #       ls -lR ./*
-    #       ./liquibase/liquibase --version
-    #       #nslookup hstntduat.healthspring.inside
-    #       #nslookup hstntdprod.healthspring.inside
-    #       #./liquibase/liquibase --defaultsFile=./H2_project/liquibase.properties --logLevel="${{ github.event.inputs.logLevel }}" status --verbose
-    #       #./liquibase/liquibase --defaultsFile=./liquibase/examples/sql/liquibase.properties --logLevel="${{ github.event.inputs.logLevel }}" status --verbose
-    #       # ./liquibase/liquibase --defaultsFile=./liquibase_airflow.properties --logLevel=DEBUG status --verbose --username=${{ inputs.TDV_USER }} --password=${{ inputs.TDV_PASSWORD }}
-    #       # ./liquibase/liquibase --defaultsFile=./liquibase_airflow.properties status --username=${{ inputs.TDV_USER }} --password=${{ inputs.TDV_PASSWORD }} --logLevel=FINE
-          
-    #       #./liquibase/liquibase --defaultsFile=./liquibase_airflow.properties --logLevel=DEBUG validate --username=${{ inputs.TDV_USER }} --password=${{ inputs.TDV_PASSWORD }}
-    #       ./liquibase/liquibase update --defaultsFile=./liquibase_airflow.properties --logLevel=DEBUG --username=${{ inputs.TDV_USER }} --password=${{ inputs.TDV_PASSWORD }}
-          
-    #       echo "Tags: ${{ github.event.inputs.tags }}" 
-          
-    #       # Uncomment the line below to save changes.  Also, see environment variables under "env" and assign variables accordingly
-    #       #git config --global user.email $user.email; git config --global user.name $user.name; git config pull.rebase false; git add .; git commit -m $"message"; git push -u origin $branch
-          
-    #       #Uncomment the line below to generate a change log.
-    #       #./liquibase/liquibase --defaultsFile=./H2_project/liquibase.properties --changeLogFile=./H2_project/newChangeLog.h2.sql generateChangeLog
-          
-    #       #Uncomment the line below to run the rollbackCount 3 times
-    #       #./liquibase/liquibase --defaultsFile=./H2_project/liquibase.properties rollbackCount 3
-    #       #./liquibase/liquibase --defaultsFile=./H2_project/liquibase.properties status --verbose
-          
-    #       #Uncomment the line below to save changes.  Also, see environment variables under "env" and assign variables accordingly
-    #       #git config --global user.email $user.email; git config --global user.name $user.name; git config pull.rebase false; git add .; git commit -m $"message"; git push -u origin $branch
-          
-    #   env:
-    #         user.email: "<email>"
-    #         user.name: "<username>"
-    #         message: "<enter commit message>"
-    #         branch: "<git branch name>"
-    #         LB_VERSION: "4.30.0"  
-    #   shell: bash  
