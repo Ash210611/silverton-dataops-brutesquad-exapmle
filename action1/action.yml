@@ -105,7 +105,8 @@ runs:
           
           # Navigate to the created directory
           cd "$GITHUB_WORKSPACE/$line"
-          ls -alh $GITHUB_WORKSPACE/$line
+          # ls -alh $GITHUB_WORKSPACE/$line
+          ls $GITHUB_WORKSPACE/liquibase
     
           # Execute Liquibase commands dynamically based on inputs
           if [ "${{ inputs.LIQUIBASE_COMMAND }}" = "update" ]; then
