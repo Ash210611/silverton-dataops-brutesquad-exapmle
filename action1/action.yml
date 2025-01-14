@@ -48,6 +48,20 @@ runs:
         sudo snap install yq
       shell: bash
 
+    - name: Processing the soultion repo and executing the liquibase commands
+      run: |
+        # Extract names from each category and store them line by line in a file
+          yq eval '.[] | .[].name' solution_repo_config.yaml > names.txt
+          cat names.txt | while read name; do
+            echo "Processing $name"
+            mkdir -p ${{ github.workspace }}/$name
+            env_lower=$(echo "${{ inputs.TDV_ENV }}" | tr '[:lower:]' '[:upper:]')
+            cp $GITHUB_WORKSPACE/solution-repo/$name/config/${env_lower}/liquibase.properties ${{ github.workspace }}/$name
+            cp $GITHUB_WORKSPACE/solution-repo/$name/${{ inputs.TDV_ENV }}.changelog.xml ${{ github.workspace }}/$name
+            # Insert any specific operations you want to perform with "$name" here
+          done
+      shell: bash
+
     - name: Process and Execute Liquibase Commands
       run: |
         # Read and process each entry in names.txt dynamically
