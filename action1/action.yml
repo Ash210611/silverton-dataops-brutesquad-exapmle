@@ -118,7 +118,7 @@ runs:
               --password="${{ inputs.TDV_PASSWORD }}"
           elif [ "${{ inputs.LIQUIBASE_COMMAND }}" = "status" ]; then
             echo "-- Do Liquibase status for $name"
-            ./liquibase/liquibase status \
+            $GITHUB_WORKSPACE/liquibase/liquibase status \
               --defaultsFile=./liquibase.properties \
               --logLevel=FINE \
               --username="${{ inputs.TDV_USER }}" \
