@@ -78,6 +78,7 @@ runs:
           
           # Navigate to the created directory
           cd "$GITHUB_WORKSPACE/$line"
+          ls -alh $GITHUB_WORKSPACE/$line
     
           # Execute Liquibase commands dynamically based on inputs
           if [ "${{ inputs.LIQUIBASE_COMMAND }}" = "update" ]; then
